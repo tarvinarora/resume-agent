@@ -1,0 +1,16 @@
+Tarvin Arora
+
+Education
+University of British Columbia
+
+Skills
+Python, Excel, data analysis
+
+Experience
+Project Assistant
+- Helped organize project files
+- Worked with team members on reports
+
+Projects
+Data Dashboard
+- Built a dashboard using Python

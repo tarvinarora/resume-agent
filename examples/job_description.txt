@@ -1,0 +1,19 @@
+Data Analyst Intern
+
+We are looking for a Data Analyst Intern with experience in Python, SQL, Excel, dashboards, data visualization, reporting, statistics, and communication.
+
+Responsibilities:
+- Analyze datasets and create reports
+- Build dashboards using visualization tools
+- Use SQL to query databases
+- Communicate insights to stakeholders
+- Work with cross-functional teams
+
+Preferred qualifications:
+- Python
+- SQL
+- Excel
+- Tableau or Power BI
+- Data visualization
+- Statistics
+- Strong written communication
