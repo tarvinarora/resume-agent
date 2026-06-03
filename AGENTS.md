@@ -44,3 +44,31 @@ Keep the code beginner-friendly.
 Avoid unnecessary frameworks.
 Use functions with clear names.
 Include comments where helpful.
+
+## Synchronous review workflow
+
+The resume agent should suggest improvements for user review instead of automatically modifying the resume.
+
+When rewriting bullets:
+- Keep the rewritten bullet close to the original meaning.
+- Do not invent tools, metrics, companies, certifications, or outcomes.
+- Do not add keywords unless they are supported by the original resume or the user confirms them.
+- Mark uncertain additions with "Only add if true."
+- Output suggestions in a review-friendly Markdown table.
+- Never overwrite the original resume file unless the user explicitly approves.
+
+## Report readability rule
+
+Avoid large Markdown tables when cells contain long text.
+
+For bullet rewrite suggestions, use review cards instead of tables.
+
+Each card should include:
+- Original bullet
+- Issue
+- Suggested rewrite
+- Keywords included
+- Honesty check
+- Decision checkboxes
+
+The output should be easy to read in plain Markdown.

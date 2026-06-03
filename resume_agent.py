@@ -5,7 +5,9 @@ from collections import Counter
 COMMON_WORDS = {
     "the", "and", "or", "a", "an", "to", "of", "in", "for", "with", "on", "by",
     "as", "is", "are", "be", "this", "that", "you", "your", "we", "our", "will",
-    "from", "at", "it", "all", "can", "have", "has", "must", "should", "about"
+    "from", "at", "it", "all", "can", "have", "has", "must", "should", "about",
+    "who", "where", "their", "help", "canadian", "tire", "commitment",
+    "committed", "believe", "people", "culture", "environment", "business"
 }
 
 
@@ -34,7 +36,30 @@ MULTI_WORD_KEYWORDS = [
     "product management",
     "digital marketing",
     "social media",
-    "financial analysis"
+    "financial analysis",
+    "data governance",
+    "data management",
+    "data quality",
+    "data integrity",
+    "data stewardship",
+    "data profiling",
+    "data discovery",
+    "data models",
+    "data glossaries",
+    "data catalogues",
+    "data mappings",
+    "data lineage",
+    "data classifications",
+    "data lifecycle",
+    "data integration",
+    "reference data",
+    "microsoft office",
+    "oracle databases",
+    "sql queries",
+    "structured relational databases",
+    "shell scripting",
+    "linux commands",
+    "ibm knowledge catalog"
 ]
 
 
@@ -131,10 +156,149 @@ def formatting_feedback(resume: str) -> list[str]:
     return feedback
 
 
+def extract_resume_bullets(resume: str) -> list[str]:
+    bullets = []
+
+    for line in resume.splitlines():
+        line = line.strip()
+        if line.startswith(("•", "-", "*")):
+            bullets.append(line.lstrip("•-* ").strip())
+
+    return bullets
+
+
+def find_keywords_for_bullet(bullet: str, missing_keywords: list[str]) -> list[str]:
+    bullet_text = clean_text(bullet)
+    keyword_matches = []
+
+    keyword_hints = {
+        "data governance": ["documentation", "approved", "guardrails", "quality", "integrity"],
+        "data management": ["data", "database", "schema", "workflow", "documents"],
+        "data quality": ["testing", "quality", "validated", "consistency", "defects"],
+        "data integrity": ["schema", "database", "validated", "consistency", "integrity"],
+        "metadata": ["documents", "fields", "catalog", "lineage"],
+        "reference data": ["database", "schema", "mapping", "fields"],
+        "data stewardship": ["stakeholder", "documentation", "teams", "communication"],
+        "data profiling": ["analyze", "analysis", "sql", "queries", "datasets"],
+        "data discovery": ["analyze", "analysis", "sql", "queries", "datasets"],
+        "data models": ["schema", "schemas", "er diagrams", "database"],
+        "data mappings": ["schema", "schemas", "fields", "documents"],
+        "data lineage": ["workflow", "pipeline", "process", "documents"],
+        "data integration": ["integrate", "integration", "pipelines", "workflow"],
+        "stakeholders": ["stakeholder", "teams", "communication", "user guides"],
+        "sql": ["sql", "database", "query", "queries", "schema"],
+        "excel": ["excel", "macro"],
+        "power bi": ["power bi", "powerbi", "dashboard"],
+        "python": ["python", "pandas", "pytorch", "scikit-learn"],
+    }
+
+    for keyword in missing_keywords:
+        keyword_text = clean_text(keyword)
+        hints = keyword_hints.get(keyword_text, [])
+        if any(hint in bullet_text for hint in hints):
+            keyword_matches.append(keyword)
+
+    return keyword_matches[:3]
+
+
+def describe_bullet_issue(bullet: str, keywords: list[str]) -> str:
+    issues = []
+
+    if not re.search(r"\d+%|\$\d+|\d+\+|\d+,\d+", bullet):
+        issues.append("No clear metric or scale")
+
+    if keywords:
+        issues.append("Could better reflect job description language")
+
+    if len(bullet.split()) > 35:
+        issues.append("Long bullet; may be harder to scan")
+
+    if not issues:
+        issues.append("Mostly strong; review for role alignment")
+
+    return "; ".join(issues)
+
+
+def suggest_bullet_rewrite(bullet: str, keywords: list[str]) -> str:
+    if not keywords:
+        return f"{bullet} Add a measurable result or job-specific context if true."
+
+    keyword_phrase = ", ".join(keywords)
+    return f"{bullet} If accurate, connect this work to {keyword_phrase} using the same facts already in the bullet."
+
+
+def honesty_check_for_bullet(keywords: list[str]) -> str:
+    if not keywords:
+        return "Confirm any added metric or context before using."
+
+    return "Only add if true. User should confirm the keyword accurately describes the work."
+
+
+def bullet_rewrite_suggestion_agent(
+    resume: str,
+    job_description: str,
+    missing_keywords: list[str]
+) -> str:
+    bullets = extract_resume_bullets(resume)
+
+    if not bullets:
+        return (
+            "### Suggestion 1\n\n"
+            "**Original bullet**\n"
+            "- No bullets found\n\n"
+            "**Issue**\n"
+            "Resume may need bullet points under experience or projects.\n\n"
+            "**Suggested rewrite**\n"
+            "- Add clear achievement bullets before using this agent.\n\n"
+            "**Keywords included**\n"
+            "None\n\n"
+            "**Honesty check**\n"
+            "User should manually add truthful bullets.\n\n"
+            "**Decision**\n"
+            "[ ] Accept\n"
+            "[ ] Edit\n"
+            "[ ] Reject"
+        )
+
+    review_cards = []
+
+    for number, bullet in enumerate(bullets, start=1):
+        keywords = find_keywords_for_bullet(bullet, missing_keywords)
+        issue = describe_bullet_issue(bullet, keywords)
+        suggestion = suggest_bullet_rewrite(bullet, keywords)
+        keyword_text = ", ".join(keywords) if keywords else "None"
+        honesty_check = honesty_check_for_bullet(keywords)
+
+        review_cards.append(
+            f"### Suggestion {number}\n\n"
+            "**Original bullet**\n"
+            f"- {bullet}\n\n"
+            "**Issue**\n"
+            f"{issue}\n\n"
+            "**Suggested rewrite**\n"
+            f"- {suggestion}\n\n"
+            "**Keywords included**\n"
+            f"{keyword_text}\n\n"
+            "**Honesty check**\n"
+            f"{honesty_check}\n\n"
+            "**Decision**\n"
+            "[ ] Accept\n"
+            "[ ] Edit\n"
+            "[ ] Reject"
+        )
+
+    return "\n\n".join(review_cards)
+
+
 def generate_report(resume: str, job_description: str) -> str:
     score = estimate_score(resume, job_description)
     missing_keywords = find_missing_keywords(resume, job_description)
     formatting_issues = formatting_feedback(resume)
+    bullet_suggestions = bullet_rewrite_suggestion_agent(
+        resume,
+        job_description,
+        missing_keywords
+    )
 
     report = []
 
@@ -159,6 +323,12 @@ def generate_report(resume: str, job_description: str) -> str:
             report.append(f"- {issue}")
     else:
         report.append("- No major formatting issues detected.")
+    report.append("")
+
+    report.append("## Bullet Rewrite Suggestions")
+    report.append("Review and approve these manually. Do not add keywords unless they truthfully describe your experience.")
+    report.append("")
+    report.append(bullet_suggestions)
     report.append("")
 
     report.append("## Priority Actions To Reach 90+")
